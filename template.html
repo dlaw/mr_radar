@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>tbos_regional_base</title>
+    <style>
+      .radar_frame {
+          font-family: monospace;
+          display: none;
+      }
+    </style>
+    <script>
+      var frame_index = -1;
+      var frame_timer;
+      var frames = document.getElementsByClassName("radar_frame");
+      function display_frame() {
+          for (i = 0; i < frames.length; i++) {
+              frames[i].style.display = "none";
+          }
+          frames[frame_index].style.display = "block";
+      }
+      function next_frame() {
+          frame_index = (frame_index + 1) % frames.length;
+          display_frame();
+          frame_timer = setTimeout(next_frame, 500);
+      }
+      window.addEventListener("load", next_frame);
+    </script>
+  </head>
+  <body>
+    {% for frame in frames %}
+    <div class="radar_frame">
+      {{ frame }}
+      <img src="{{ frame }}.png" style="width: 100%"/>
+    </div>
+    {% endfor %}
+  </body>
+</html>

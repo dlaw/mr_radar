@@ -71,7 +71,9 @@ folder whenever it is necessary to regenerate the map.
 Fill out the `config.ini` file with your desired radar site(s), map
 layers, and latitude/longitude extents.  Then call `mr_radar.py`.  The
 png files with radar and map data will be placed in named folders
-corresponding to the section names in the configuration file.
+corresponding to the section names in the configuration file.  An
+`index.html` file displaying an animated loop of the radar images
+will be generated in each folder.
 
 The `make_map.py` and `level3_to_png.py` files are also callable as
 standalone utilities.  `make_map.py` downloads and stitches together

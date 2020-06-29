@@ -2,7 +2,7 @@
 import argparse, configparser, os, os.path, urllib.request
 import metpy.io
 import PIL.Image, PIL.PngImagePlugin
-import level3_to_png, make_map
+import level3_to_png, make_map, generate_html
 
 parser = argparse.ArgumentParser(
     description='weather radar visualization tool')
@@ -44,3 +44,4 @@ for section in config.sections():
         metadata.add_text(label, map_image.info[label])
     radar_image.save('{}/{}.png'.format(section, prod_time),
                      pnginfo=metadata)
+    generate_html.generate_html('template.html', section)
