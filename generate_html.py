@@ -4,8 +4,7 @@ import argparse, jinja2, os, os.path
 def generate_html(template_path, subdir):
     with open(template_path) as f:
         template = jinja2.Template(f.read())
-    frames = [name[:-4] for name in sorted(os.listdir(subdir)) if
-              name.startswith('20') and name.endswith('.png')]
+    frames = sorted(os.listdir(os.path.join(subdir, 'radar')))
     with open(os.path.join(subdir, 'index.html'), 'w') as f:
         f.write(template.render(frames=frames))
 
