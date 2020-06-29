@@ -44,6 +44,7 @@ def level3_to_png(radar_file, lat_min, lat_max, lon_min, lon_max,
     # Export a PNG from matplotlib and pipe it into PIL.
     png_buffer = io.BytesIO()
     matplotlib.pyplot.savefig(png_buffer, format='png')
+    matplotlib.pyplot.close()
     png_buffer.seek(0)
     return PIL.Image.open(png_buffer)
 

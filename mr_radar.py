@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import argparse, configparser, datetime, os, os.path, urllib.request
+import argparse, configparser, datetime, os, os.path, time, urllib.request
 import metpy.io
 import PIL.Image, PIL.PngImagePlugin
 import level3_to_png, make_map, generate_html
@@ -8,12 +8,14 @@ parser = argparse.ArgumentParser(
     description='weather radar visualization tool')
 parser.add_argument('--config', required=False, type=str,
                     help='path to config file', default='config.ini')
+parser.add_argument('--repeat', required=False, type=int, default=0,
+                    help='number of seconds to automatically repeat')
 opts = parser.parse_args()
 
 config = configparser.ConfigParser()
 config.read(opts.config)
 
-for section in config.sections():
+def radar_update(section):
     if not os.path.exists(section):
         os.mkdir(section)
     map_path = section + '/map.png'
@@ -44,6 +46,7 @@ for section in config.sections():
     assert map_image.size == radar_image.size
     radar_image.paste(map_image, mask=map_image)
     # Add latitude and longitude extents to radar image metadata.
+    # TODO: transfer additional metadata from the input radar file.
     metadata = PIL.PngImagePlugin.PngInfo()
     for label in ["Minimum Latitude", "Maximum Latitude",
                   "Minimum Longitude", "Maximum Longitude"]:
@@ -66,3 +69,14 @@ for section in config.sections():
             os.unlink(os.path.join(radar_dir, radar_name))
     # Regenerate the HTML template.
     generate_html.generate_html('template.html', section)
+
+try:
+    while True:
+        for section in config.sections():
+            radar_update(section)
+        if opts.repeat == 0:
+            exit()
+        print('Update: {}'.format(datetime.datetime.now().isoformat()))
+        time.sleep(opts.repeat)
+except KeyboardInterrupt:
+    pass

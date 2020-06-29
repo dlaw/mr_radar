@@ -1,37 +1,46 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>tbos_regional_base</title>
+    <title>{{ title }}</title>
     <style>
-      .radar_frame {
+      #radar_time, #radar_age {
+          position: fixed;
           font-family: monospace;
-          display: none;
+          background-color: white;
+          font-size: 300%;
+          padding: 8px;
+          top: 0px;
+          z-index: 1;
+      }
+      .radar_frame {
+          visibility: hidden;
+          position: absolute;
       }
     </style>
     <script>
-      var frame_index = -1;
+      var frame_index = 0;
       var frame_timer;
-      var frames = document.getElementsByClassName("radar_frame");
-      function display_frame() {
-          for (i = 0; i < frames.length; i++) {
-              frames[i].style.display = "none";
-          }
-          frames[frame_index].style.display = "block";
-      }
       function next_frame() {
+          var frames = document.getElementsByClassName("radar_frame");
+          var radar_time = document.getElementById("radar_time");
+          var radar_age = document.getElementById("radar_age");
+          frames[frame_index].style.visibility = "hidden";
           frame_index = (frame_index + 1) % frames.length;
-          display_frame();
-          frame_timer = setTimeout(next_frame, 500);
+          radar_time.innerHTML = frames[frame_index].dataset.time
+          radar_age.innerHTML = frames[frame_index].dataset.age
+          frames[frame_index].style.visibility = "visible";
+          frame_timer = setTimeout(next_frame, 100);
       }
-      window.addEventListener("load", next_frame);
     </script>
   </head>
-  <body>
-    {% for frame in frames %}
-    <div class="radar_frame">
-      {{ frame }}
-      <img src="radar/{{ frame }}" style="width: 100%"/>
-    </div>
-    {% endfor %}
+  <body style="margin:0px" onload="next_frame()">
+    <div id="radar_time" style="left:0px"></div>
+    <div id="radar_age" style="right:0px"></div>
+    {%- for frame in frames %}
+    <img class="radar_frame"
+         {%- for key in frame %}
+         {{ key }}="{{ frame[key] }}"
+         {%- endfor %}/>
+    {%- endfor %}
   </body>
 </html>

@@ -3,7 +3,8 @@
 Mr. Radar is a minimalist Python application for rendering radar data
 from the National Weather Service of the United States. Radar data is
 rendered using the standard NWS color scale, layered with a
-user-specified map layer, and saved in png format.
+user-specified map layer, and saved in png format. An HTML page is
+generated to display the rendered images in an animated loop.
 
 ![example radar image](example.png)
 
@@ -95,7 +96,7 @@ the final layering.
 ### Future work
 
 * Fetch new images on a schedule.
-* Display past and present images in an animated loop.
+* Improve the HTML animation/control UI.
 * More granular control of directory paths and file names.
 * Performance profiling and improvements.
 * Figure out how to render composite reflectivity.
