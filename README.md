@@ -16,8 +16,11 @@ FTP server at
 The NWS provides some documentation about the
 [directory structure](https://www.weather.gov/tg/fstandrd) and
 [radar file paths](https://www.weather.gov/tg/radfiles).
-Notably, high-resolution airport TWDR sources are also available,
-whearas most other radar services only use the lower-resolution NEXRAD
+Notably,
+[high-resolution](https://www.ncdc.noaa.gov/data-access/radar-data/tdwr)
+[TWDR](https://www.roc.noaa.gov/spg/default.aspx)
+sources are also available,
+whearas most other radar services only use the lower-resolution WSR-88D
 data.
 
 There is some variation in the exact path between the various NEXRAD

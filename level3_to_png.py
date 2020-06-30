@@ -6,11 +6,13 @@ import PIL.Image
 matplotlib.use('Agg')
 
 def level3_to_png(radar_file, lat_min, lat_max, lon_min, lon_max,
-                  x_res, y_res):
+                  x_res, y_res, min_signal_dBZ=0):
     # Open radar file and extract the data array.
     f = (radar_file if type(radar_file) == metpy.io.Level3File else
          metpy.io.Level3File(radar_file))
-    data = numpy.ma.masked_equal(f.sym_block[0][0]['data'], 0)
+    data = f.map_data(f.sym_block[0][0]['data'])  # data is now in dBZ
+    with numpy.errstate(invalid='ignore'):  # ignore existing NaNs
+        data[data < min_signal_dBZ] = numpy.nan  # mask out low values
 
     # Compute the azimuth and distance at the *corners* of each sample.
     # azimuth is in degrees and distance is in meters.
@@ -37,8 +39,9 @@ def level3_to_png(radar_file, lat_min, lat_max, lon_min, lon_max,
                                 xlim=(xmin, xmax), ylim=(ymin, ymax))
     ax.set_axis_off()
     fig.add_axes(ax)
+    # MetPy color table starts from -20 dB in 0.5 dB increments
     norm, cmap = metpy.plots.colortables.get_with_steps(
-        'NWSReflectivity', 16, 16)
+        'NWSStormClearReflectivity', -20, 0.5)
     ax.pcolormesh(radar_x, radar_y, data, norm=norm, cmap=cmap)
 
     # Export a PNG from matplotlib and pipe it into PIL.
