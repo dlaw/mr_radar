@@ -6,14 +6,13 @@
       #radar_time, #radar_age {
           position: fixed;
           font-family: monospace;
-          background-color: white;
+          background-color: rgba(255, 255, 255, 0.8);
           font-size: 300%;
           padding: 8px;
           top: 0px;
-          z-index: 1;
+          z-index: 2;
       }
-      .radar_frame {
-          visibility: hidden;
+      .layer {
           position: absolute;
       }
     </style>
@@ -21,23 +20,33 @@
       var frame_index = 0;
       var frame_timer;
       function next_frame() {
-          var frames = document.getElementsByClassName("radar_frame");
+          var frames = document.getElementsByClassName("radar");
           var radar_time = document.getElementById("radar_time");
           var radar_age = document.getElementById("radar_age");
           frames[frame_index].style.visibility = "hidden";
           frame_index = (frame_index + 1) % frames.length;
-          radar_time.innerHTML = frames[frame_index].dataset.time
-          radar_age.innerHTML = frames[frame_index].dataset.age
+          age = Date.now() - frames[frame_index].dataset.time_ms;
+          radar_age.innerHTML = Math.ceil(age / 60000.) + ' minutes ago';
+          radar_time.innerHTML = frames[frame_index].dataset.time;
           frames[frame_index].style.visibility = "visible";
-          frame_timer = setTimeout(next_frame, 100);
+          if (frame_index + 1 == frames.length) {
+              display_time = 2000;
+          } else {
+              time_elapsed = (frames[frame_index + 1].dataset.time_ms -
+                              frames[frame_index].dataset.time_ms)
+              display_time = time_elapsed / 600.;
+          }
+          frame_timer = setTimeout(next_frame, display_time);
       }
     </script>
   </head>
   <body style="margin:0px" onload="next_frame()">
     <div id="radar_time" style="left:0px"></div>
     <div id="radar_age" style="right:0px"></div>
+    <img class="layer" style="z-index:-1" src="../base_map.png">
+    <img class="layer" style="z-index:1" src="../overlay_map.png">
     {%- for frame in frames %}
-    <img class="radar_frame"
+    <img class="layer radar" style="visibility:hidden"
          {%- for key in frame %}
          {{ key }}="{{ frame[key] }}"
          {%- endfor %}/>

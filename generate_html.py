@@ -2,21 +2,22 @@
 import argparse, datetime, jinja2, os, os.path
 
 def generate_html(template_path, subdir):
+    current_time = datetime.datetime.now(tz=datetime.timezone.utc)
+    frame_names = sorted(os.listdir(os.path.join(subdir, 'radar')))
+    frame_attrs = []
+    for frame_name in frame_names:
+        local_time = datetime.datetime.fromisoformat(
+            os.path.splitext(frame_name)[0]).astimezone()
+        age = current_time - local_time
+        frame_attrs.append({'src': os.path.join('radar', frame_name),
+                            'data-time': local_time.strftime('%H:%M'),
+                            'data-time_ms': local_time.timestamp() * 1000,
+        })
     with open(template_path) as f:
         template = jinja2.Template(f.read())
-    frames = []
-    current_time = datetime.datetime.now(tz=datetime.timezone.utc)
-    for frame in sorted(os.listdir(os.path.join(subdir, 'radar'))):
-        local_time = datetime.datetime.fromisoformat(
-            os.path.splitext(frame)[0]).astimezone()
-        age = current_time - local_time
-        frames.append({'src': os.path.join('radar', frame),
-                       'data-time': local_time.strftime('%H:%M'),
-                       'data-age': int(age.total_seconds())
-        })
     with open(os.path.join(subdir, 'index.html'), 'w') as f:
         f.write(template.render(title=os.path.normpath(subdir),
-                                frames=frames))
+                                frames=frame_attrs))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
