@@ -49,6 +49,7 @@ def radar_update(radar_layer, radar_url):
         response = urllib.request.urlopen(radar_url)
     except ConnectionResetError:
         print('Error downloading {}'.format(radar_url))
+        return
     radar_file = metpy.io.Level3File(response)
     # TODO: also save radar_file
     radar_image = level3_to_png.level3_to_png(
