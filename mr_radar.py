@@ -1,8 +1,14 @@
 #!/usr/bin/python
 import argparse, configparser, datetime, os, os.path, time, urllib.request
-import metpy.io
 import PIL.Image, PIL.PngImagePlugin
 import level3_to_png, make_map, generate_html
+
+# MetPy (plots/__init__.py) outputs a warning about Cartopy not being
+# installed unless we do a little song and dance with the logging
+import logging
+logging.disable(logging.ERROR)
+import metpy.io
+logging.disable(logging.NOTSET)
 
 parser = argparse.ArgumentParser(
     description='weather radar visualization tool')

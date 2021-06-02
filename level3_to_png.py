@@ -1,9 +1,15 @@
 #!/usr/bin/python
 import argparse, io, numpy, pyproj, sys
-import metpy.io, metpy.plots
 import matplotlib
 import PIL.Image
 matplotlib.use('Agg')
+
+# MetPy (plots/__init__.py) outputs a warning about Cartopy not being
+# installed unless we do a little song and dance with the logging
+import logging
+logging.disable(logging.ERROR)
+import metpy.io, metpy.plots
+logging.disable(logging.NOTSET)
 
 def level3_to_png(radar_file, lat_min, lat_max, lon_min, lon_max,
                   x_res, y_res, min_signal_dBZ=0):
