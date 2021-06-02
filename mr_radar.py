@@ -15,28 +15,33 @@ opts = parser.parse_args()
 config = configparser.ConfigParser()
 config.read(opts.config)
 
-out_dir = config['general']['out_dir']
+def radar_update(radar_layer, settings):
+    out_dir = settings['out_dir']
 
-for map_type in ['base', 'overlay']:
-    map_path = os.path.join(out_dir, '{}_map.png'.format(map_type))
-    # Create the map if it doesn't already exist.
-    if not os.path.exists(map_path):
-        make_map.make_map(map_path,
-                          config.getfloat('extents', 'latitude_min'),
-                          config.getfloat('extents', 'latitude_max'),
-                          config.getfloat('extents', 'longitude_min'),
-                          config.getfloat('extents', 'longitude_max'),
-                          config.getint('map_layers', 'zoom'),
-                          config['map_layers'][map_type])
-base_image = PIL.Image.open(os.path.join(out_dir, 'base_map.png'))
-overlay_image = PIL.Image.open(os.path.join(out_dir, 'overlay_map.png'))
-assert base_image.size == overlay_image.size
-x_res, y_res = base_image.size
-
-def radar_update(radar_layer, radar_url):
     radar_dir = os.path.join(out_dir, radar_layer)
     if not os.path.exists(radar_dir):
-        os.mkdir(radar_dir)
+        os.makedirs(radar_dir)
+
+    # Generate the map images if they don't already exist
+    # TODO: identify if/when the map parameters change
+    for map_type in ['base_map', 'overlay_map']:
+        map_path = os.path.join(radar_dir, '{}.png'.format(map_type))
+        # Create the map if it doesn't already exist.
+        if not os.path.exists(map_path):
+            make_map.make_map(map_path,
+                              settings.getfloat('latitude_min'),
+                              settings.getfloat('latitude_max'),
+                              settings.getfloat('longitude_min'),
+                              settings.getfloat('longitude_max'),
+                              settings.getint('zoom'),
+                              settings[map_type])
+
+    # Make sure the maps that we have are the same size
+    base_image = PIL.Image.open(os.path.join(radar_dir, 'base_map.png'))
+    overlay_image = PIL.Image.open(os.path.join(radar_dir, 'overlay_map.png'))
+    assert base_image.size == overlay_image.size
+    x_res, y_res = base_image.size
+
     # Render radar data using latitude and longitude from the map image
     # metadata, instead of from the configuration file, because the image
     # extents may be slightly different (due to rounding to the nearest
@@ -46,12 +51,12 @@ def radar_update(radar_layer, radar_url):
     lon_min = float(base_image.info['Minimum Longitude'])
     lon_max = float(base_image.info['Maximum Longitude'])
     try:
-        response = urllib.request.urlopen(radar_url)
+        response = urllib.request.urlopen(settings['radar_url'])
     except ConnectionResetError:
-        print('Error downloading {}'.format(radar_url))
+        print('Error downloading {}'.format(settings['radar_url']))
         return
     radar_file = metpy.io.Level3File(response)
-    # TODO: also save radar_file
+    # TODO: also save radar_file if desired
     radar_image = level3_to_png.level3_to_png(
         radar_file, lat_min, lat_max, lon_min, lon_max, x_res, y_res)
     assert base_image.size == radar_image.size
@@ -66,6 +71,7 @@ def radar_update(radar_layer, radar_url):
     prod_time = (radar_file.metadata['prod_time']
                  .replace(tzinfo=datetime.timezone.utc)
                  .isoformat(timespec='seconds'))
+    # TODO: warn if prod_time is too old.
     radar_path = os.path.join(radar_subdir, '{}.png'.format(prod_time))
     radar_image.save(radar_path, pnginfo=metadata)
     # Remove stale images from the output directory.
@@ -76,13 +82,13 @@ def radar_update(radar_layer, radar_url):
         if now - then > datetime.timedelta(hours=1):
             os.unlink(os.path.join(radar_subdir, radar_name))
     # Regenerate the HTML template.
-    generate_html.generate_html('template.html',
+    generate_html.generate_html('radar_template.html',
                                 os.path.join(out_dir, radar_layer))
 
 try:
     while True:
-        for radar_layer, radar_url in config['radar_layers'].items():
-            radar_update(radar_layer, radar_url)
+        for radar_layer in config.sections():
+            radar_update(radar_layer, config[radar_layer])
         if opts.repeat == 0:
             exit()
         print('Update: {}'.format(datetime.datetime.now()
