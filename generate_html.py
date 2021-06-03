@@ -19,6 +19,12 @@ def generate_html(template_path, subdir):
         f.write(template.render(title=os.path.normpath(subdir),
                                 frames=frame_attrs))
 
+def generate_index(template_path, root_dir, subdir_names):
+    with open(template_path) as f:
+        template = jinja2.Template(f.read())
+    with open(os.path.join(root_dir, 'index.html'), 'w') as f:
+        f.write(template.render(subdirs=subdir_names))
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='generate HTML for an animated radar loop')

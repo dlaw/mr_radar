@@ -12,12 +12,11 @@ loop.
 ### Usage
 
 Fill out the `config.ini` file with your desired radar layer(s), map
-layers, and latitude/longitude extents.  Be sure that the specificed
-output directory exists.  Then call `mr_radar.py` periodically (or
-pass the `--repeat` flag with a refresh interval in seconds).  The png
-files with radar data and html file of the animation will be placed in
-named folders corresponding to the radar layer names in the configuration
-file.
+layers, and latitude/longitude extents.  Then call `mr_radar.py`
+periodically (or pass the `--repeat` flag with a refresh interval in
+seconds).  The png files with radar data and html file of the
+animation will be placed in named folders corresponding to the radar
+layer names in the configuration file.
 
 The `make_map.py`, `level3_to_png.py`, and `generate_html.py` files
 are also callable as standalone utilities.  `make_map.py` downloads

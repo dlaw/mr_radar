@@ -58,7 +58,7 @@ def radar_update(radar_layer, settings):
     lon_max = float(base_image.info['Maximum Longitude'])
     try:
         response = urllib.request.urlopen(settings['radar_url'])
-    except ConnectionResetError:
+    except:
         print('Error downloading {}'.format(settings['radar_url']))
         return
     radar_file = metpy.io.Level3File(response)
@@ -80,7 +80,7 @@ def radar_update(radar_layer, settings):
     # TODO: warn if prod_time is too old.
     radar_path = os.path.join(radar_subdir, '{}.png'.format(prod_time))
     radar_image.save(radar_path, pnginfo=metadata)
-    # Remove stale images from the output directory.
+    # Remove stale images (more than 1 hour old) from the output directory.
     for radar_name in os.listdir(radar_subdir):
         prod_time = os.path.splitext(radar_name)[0]
         then = datetime.datetime.fromisoformat(prod_time)
@@ -92,6 +92,9 @@ def radar_update(radar_layer, settings):
                                 os.path.join(out_dir, radar_layer))
 
 try:
+    generate_html.generate_index('index_template.html',
+                                 config['DEFAULT']['out_dir'],
+                                 config.sections())
     while True:
         for radar_layer in config.sections():
             radar_update(radar_layer, config[radar_layer])
