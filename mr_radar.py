@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import argparse, configparser, datetime, os, os.path, time, urllib.request
+import argparse, configparser, datetime, ftplib, os, os.path, time
 import PIL.Image, PIL.PngImagePlugin
 import level3_to_png, make_map, generate_html
 
@@ -22,9 +22,13 @@ config = configparser.ConfigParser()
 config.read(opts.config)
 
 def radar_update(radar_layer, settings):
-    out_dir = settings['out_dir']
+    http_dir = settings['http_dir']
 
-    radar_dir = os.path.join(out_dir, radar_layer)
+    raw_dir = os.path.join(settings['raw_dir'], settings['ftp_dir'])
+    if not os.path.exists(raw_dir):
+        os.makedirs(raw_dir)
+
+    radar_dir = os.path.join(http_dir, radar_layer)
     if not os.path.exists(radar_dir):
         os.makedirs(radar_dir)
 
@@ -56,13 +60,29 @@ def radar_update(radar_layer, settings):
     lat_max = float(base_image.info['Maximum Latitude'])
     lon_min = float(base_image.info['Minimum Longitude'])
     lon_max = float(base_image.info['Maximum Longitude'])
+
+    # Attempt to fetch a new radar data file.
     try:
-        response = urllib.request.urlopen(settings['radar_url'])
+        with ftplib.FTP(settings['ftp_server']) as f:
+            f.login()
+            f.cwd(settings['ftp_dir'])
+            mod_time = f.voidcmd('MDTM ' + settings['ftp_file']).split()[1]
+            raw_path = os.path.join(raw_dir, mod_time)
+            if os.path.exists(raw_path):
+                # We have already fetched the most recent file.
+                # Nothing new to do.
+                return
+            # Fetch the new file.
+            with open(raw_path, 'wb') as raw:
+                f.retrbinary('RETR ' + settings['ftp_file'], raw.write)
     except:
-        print('Error downloading {}'.format(settings['radar_url']))
+        # Failed to fetch a new data file for some reason.
+        # Swallow the error and try again next time.
+        print('Error downloading {}'.format(radar_layer))
         return
-    radar_file = metpy.io.Level3File(response)
-    # TODO: also save radar_file if desired
+
+    radar_file = metpy.io.Level3File(raw_path)
+
     radar_image = level3_to_png.level3_to_png(
         radar_file, lat_min, lat_max, lon_min, lon_max, x_res, y_res)
     assert base_image.size == radar_image.size
@@ -89,11 +109,11 @@ def radar_update(radar_layer, settings):
             os.unlink(os.path.join(radar_subdir, radar_name))
     # Regenerate the HTML template.
     generate_html.generate_html('radar_template.html',
-                                os.path.join(out_dir, radar_layer))
+                                os.path.join(http_dir, radar_layer))
 
 try:
     generate_html.generate_index('index_template.html',
-                                 config['DEFAULT']['out_dir'],
+                                 config['DEFAULT']['http_dir'],
                                  config.sections())
     while True:
         for radar_layer in config.sections():
