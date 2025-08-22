@@ -70,6 +70,8 @@ cached map image is *not* automatically refreshed when the URL or
 extents are changed; remove `base_map.png` and `overlay_map.png` from
 the output directory whenever it is necessary to regenerate the map.
 
+Note: Since stamen maps were migrated to stadia maps, you now need an API key to access map tiles. It's free to generate one for server use, just [create an account](https://client.stadiamaps.com/signup/?utm_source=stamen), make a property, and create an API key. Just copy the key into [`config.ini`](/config.ini#L10), replacing `YOUR_STADIAMAPS_API_KEY`, and it should work!
+
 ### Dependencies
 
 * Python 3
