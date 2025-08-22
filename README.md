@@ -12,7 +12,7 @@ loop.
 ### Usage
 
 Fill out the `config.ini` file with your desired radar layer(s), map
-layers, and latitude/longitude extents.  Then call `mr_radar.py`
+layers, and latitude/longitude extents.  Then run with `uv run mr_radar.py`
 periodically (or pass the `--repeat` flag with a refresh interval in
 seconds).  The png files with radar data and html file of the
 animation will be placed in named folders corresponding to the radar

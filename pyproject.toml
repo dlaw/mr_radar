@@ -1,0 +1,14 @@
+[project]
+name = "mr_radar"
+version = "0.1.0"
+description = "Lightweight weather radar viewer with custom map layers, pixel-perfect geodetics, and TDWR support."
+readme = "README.md"
+requires-python = ">=3"
+dependencies = [
+    "metpy",
+    "pyproj",
+    "numpy",
+    "matplotlib",
+    "Pillow",
+    "jinja2",
+]
