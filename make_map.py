@@ -28,7 +28,10 @@ def make_map(output_path, lat_min, lat_max, lon_min, lon_max, zoom, url):
     for tile_x, tile_y in tiles(x_min, x_max, y_min, y_max, zoom):
         # Fetch the tile
         tile_url = url.format(x=tile_x, y=tile_y, z=zoom)
-        tile = PIL.Image.open(urllib.request.urlopen(tile_url))
+        try:
+            tile = PIL.Image.open(urllib.request.urlopen(tile_url))
+        except urllib.request.HTTPError as exc:
+            raise RuntimeError(f'HTTPError trying to download from {tile_url}: Make sure API key is correctly set in config.ini!') from exc
         # If this is the first tile, create the output image
         if not out_image:
             pixels_per_tile = tile.size[0]
