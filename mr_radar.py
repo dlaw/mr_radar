@@ -111,17 +111,18 @@ def radar_update(radar_layer, settings):
     generate_html.generate_html('radar_template.html',
                                 os.path.join(http_dir, radar_layer))
 
-try:
-    generate_html.generate_index('index_template.html',
-                                 config['DEFAULT']['http_dir'],
-                                 config.sections())
-    while True:
-        for radar_layer in config.sections():
-            radar_update(radar_layer, config[radar_layer])
-        if opts.repeat == 0:
-            exit()
-        print('Update: {}'.format(datetime.datetime.now()
-                                  .isoformat(' ', 'minutes')))
-        time.sleep(opts.repeat)
-except KeyboardInterrupt:
-    pass
+if __name__ == "__main__":
+    try:
+        generate_html.generate_index('index_template.html',
+                                    config['DEFAULT']['http_dir'],
+                                    config.sections())
+        while True:
+            for radar_layer in config.sections():
+                radar_update(radar_layer, config[radar_layer])
+            if opts.repeat == 0:
+                exit()
+            print('Update: {}'.format(datetime.datetime.now()
+                                    .isoformat(' ', 'minutes')))
+            time.sleep(opts.repeat)
+    except KeyboardInterrupt:
+        pass
