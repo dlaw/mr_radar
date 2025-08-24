@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/css/styles.css">
+    </head>
+    <body>
+        <div id="map-container">
+            <img class="map" id="overlay" src="/data/tbos_base_0.3/overlay_map.png" draggable="false">
+            <div id="radar-container"></div>
+            <img class="map" id="base" src="/data/tbos_base_0.3/base_map.png" draggable="false">
+        </div>
+        <input type="range" min="100" max="6000" value="1000" id="speed">
+        <div id="timeline">
+            <div id="timeline-line"></div>
+            <div id="timeline-marker" class="animated">
+                <pre id="time"></pre>
+            </div>
+        </div>
+
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+        <script src="/static/js/index.js"></script>
+    </body>
+</html>

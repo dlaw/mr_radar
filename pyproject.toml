@@ -11,4 +11,7 @@ dependencies = [
     "matplotlib",
     "Pillow",
     "jinja2",
+    "flask>=1.1.4",
+    "flask-socketio>=4.3.2",
+    "eventlet>=0.33.3",
 ]
